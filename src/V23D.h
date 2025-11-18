@@ -1,21 +1,16 @@
-// © Kay Sievers <kay@versioduo.com>, 2022
-// SPDX-License-Identifier: Apache-2.0
-
 #pragma once
-
-#include <cmath>
-
 #include "3D/Attitude.h"
 #include "3D/Euler.h"
 #include "3D/Quaternion.h"
 #include "3D/Vector3.h"
+#include <numbers>
 
 namespace V23D {
-static inline float radToDeg(float rad) {
-  return rad * 180.f / (float)M_PI;
-}
+  constexpr auto radToDeg(float rad) -> float {
+    return rad * 180.f / std::numbers::pi_v<float>;
+  }
 
-static inline float degToRad(float deg) {
-  return deg * (float)M_PI / 180.f;
-}
+  constexpr auto degToRad(float deg) -> float {
+    return deg * std::numbers::pi_v<float> / 180.f;
+  }
 };

@@ -1,81 +1,57 @@
-// © Kay Sievers <kay@versioduo.com>, 2022
-// SPDX-License-Identifier: Apache-2.0
-
 #pragma once
-
 #include "Vector3.h"
 
 namespace V23D {
-class Quaternion {
-public:
-  float w, x, y, z;
+  class Quaternion {
+  public:
+    float w{1};
+    float x{};
+    float y{};
+    float z{};
 
-  constexpr Quaternion(float qw = 1, float qx = 0, float qy = 0, float qz = 0) : w(qw), x(qx), y(qy), z(qz) {}
+    constexpr Quaternion() = default;
+    constexpr Quaternion(float w, float x, float y, float z) : w(w), x(x), y(y), z(z) {}
 
-  constexpr Quaternion operator*(const Quaternion &q) const {
-    return Quaternion(w * q.w - x * q.x - y * q.y - z * q.z,
-                      w * q.x + x * q.w + y * q.z - z * q.y,
-                      w * q.y - x * q.z + y * q.w + z * q.x,
-                      w * q.z + x * q.y - y * q.x + z * q.w);
-  }
-
-  static constexpr Quaternion fromAxisAngle(Vector3 axis, float angle) {
-    const float c = sinf(angle / 2.f);
-    return Quaternion(cosf(angle / 2.f), c * axis.x, c * axis.y, c * axis.z);
-  }
-
-  constexpr float getAxisAngle(Vector3 &axis) const {
-    const float angle   = 2.f * acos(w);
-    const float divider = sqrtf(1.f - w * w);
-
-    if (divider > 0.0001f) {
-      axis.x = x / divider;
-      axis.y = y / divider;
-      axis.z = z / divider;
-
-    } else {
-      axis.x = 1;
-      axis.y = 0;
-      axis.z = 0;
+    auto operator*(const Quaternion& q) const -> Quaternion {
+      return Quaternion(w * q.w - x * q.x - y * q.y - z * q.z,
+                        w * q.x + x * q.w + y * q.z - z * q.y,
+                        w * q.y - x * q.z + y * q.w + z * q.x,
+                        w * q.z + x * q.y - y * q.x + z * q.w);
     }
 
-    return angle;
-  }
+    auto normalize() -> Quaternion {
+      if (auto l{length()}; l > 0.0001f) {
+        w *= 1.f / l;
+        x *= 1.f / l;
+        y *= 1.f / l;
+        z *= 1.f / l;
+      }
 
-  constexpr Quaternion normalize() {
-    const float l = getLength();
-    if (l > 0.0001f) {
-      w *= 1.f / l;
-      x *= 1.f / l;
-      y *= 1.f / l;
-      z *= 1.f / l;
+      return Quaternion(w, x, y, z);
     }
 
-    return Quaternion(w, x, y, z);
-  }
+    auto length() const -> float {
+      return std::sqrtf(w * w + x * x + y * y + z * z);
+    }
 
-  constexpr float getLength() const {
-    return sqrtf(w * w + x * x + y * y + z * z);
-  }
+    auto conjugate() const -> Quaternion {
+      return Quaternion(w, -x, -y, -z);
+    }
 
-  constexpr Quaternion getConjugate() const {
-    return Quaternion(w, -x, -y, -z);
-  }
+    auto equal(const Quaternion q) const -> bool {
+      if (std::fabs(w - q.w) > 0.0001f)
+        return false;
 
-  constexpr bool isEqual(const Quaternion q) const {
-    if (fabs(w - q.w) > 0.0001f)
-      return false;
+      if (std::fabs(x - q.x) > 0.0001f)
+        return false;
 
-    if (fabs(x - q.x) > 0.0001f)
-      return false;
+      if (std::fabs(y - q.y) > 0.0001f)
+        return false;
 
-    if (fabs(y - q.y) > 0.0001f)
-      return false;
+      if (std::fabs(z - q.z) > 0.0001f)
+        return false;
 
-    if (fabs(z - q.z) > 0.0001f)
-      return false;
-
-    return true;
-  }
-};
+      return true;
+    }
+  };
 };
